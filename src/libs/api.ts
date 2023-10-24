@@ -1,4 +1,18 @@
 import { Order } from "@/app/types/Order";
+import { OrderStatus } from "@/app/types/OrderStatus";
+import { Product } from "@/app/types/Product";
+
+const tmpProduct: Product = {
+  id: 999,
+  image: 'https://offloadmedia.feverup.com/saopaulosecreto.com/wp-content/uploads/2021/05/29044255/miha-rekar-ISVtBKNhJ2g-unsplash-1024x819.jpg',
+  category: {
+    id: 99,
+    name: 'Burgers'
+  },
+  name: 'Burgão boladão',
+  price: 35.3,
+  description: 'Um burger boladão muito legal'
+}
 
 export const api = {
   login: async (email: string, password: string): Promise<{error: string, token?: string}> => {
@@ -32,16 +46,51 @@ export const api = {
     });
   },
 
-  getOrders: async () => {
+  getOrders: async (): Promise<Order[]> => {
     return new Promise(resolve => {
       setTimeout(() => {
         
         const orders: Order[] = [];
+        const statuses: OrderStatus[] = ['preparing', 'sent', 'delivered']
 
         // TODO montar array de pedidos
+        for(let i=0;i<6;i++ ) {
+          orders.push({
+            id: parseInt('12' + i),
+            status: statuses[Math.floor(Math.random() * 3)],
+            orderDate: '2023-01-03 18:30',
+            userId: '1',
+            userName: 'Pedro',
+            shippingAddress: {
+              id: 99,
+              cep: '99999999',
+              address: 'Rua bla bla',
+              number: '1200',
+              neighborhood: 'Algo',
+              city: 'São Paulo',
+              state: 'SP',
+              complement: 'AAA2'
+            },
+            shippingPrice: 12,
+            paymentType: 'card',
+            changeValue: 0,
+            cupom: "BLA",
+            cupomDiscount: 2,
+            products: [
+              { qt: 2, product: tmpProduct },
+              { qt: 3, product: {...tmpProduct, id: 888, name: 'Burger Vegetariano'} }
+            ],
+            subtotal: 99,
+            total: 120 
+          });
+        }
 
         resolve(orders);
       }, 1000);
     });
+  },
+
+  changeOrderStatus: async (id: number, newStatus: OrderStatus) => {
+    return true;
   }
 }
