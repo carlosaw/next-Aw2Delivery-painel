@@ -4,10 +4,10 @@ import { Order } from "@/app/types/Order";
 import { OrderStatus } from "@/app/types/OrderStatus";
 import { OrderItem } from "@/components/OrderItem";
 import { api } from "@/libs/api";
+import { dateFormat } from "@/libs/dateFormat";
 import { Refresh, Search } from "@mui/icons-material";
 import { Box, Button, CircularProgress, Grid, InputAdornment, Skeleton, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from 'react';
-import { setTimeout } from "timers/promises";
 
 const Page = () => {
   const [searchInput, setSearchInput] = useState('');
@@ -61,9 +61,9 @@ const Page = () => {
 
   const handlePrintAction = (order: Order) => {
     setPrintOrder(order);
-    // setTimeout(() => {
-    //   if(window) window.print();      
-    // }, 200);
+    setTimeout(() => {
+      if(window) window.print();      
+    }, 200);
   }
 
   return (
@@ -136,7 +136,37 @@ const Page = () => {
       </Box>
 
       <Box sx={{ display: 'none', displayPrint: 'block' }}>
-        
+        {printOrder &&
+          <>
+            <Typography component="h5" variant="h5">Pedido</Typography>
+            <Box>ID: # {printOrder.id}</Box>
+            <Box>Data do pedido: {dateFormat(printOrder.orderDate)}</Box>
+            <Box>Cliente: {printOrder.userName}</Box>
+
+            <Typography component="h5" variant="h5">Pagamento</Typography>
+            <Box>Tipo de pagamento: {printOrder.paymentType === 'card' ? 'Cartão' : 'Dinheiro'}</Box>
+            <Box>Subtotal: R$ {printOrder.subtotal.toFixed(2)}</Box>
+            <Box>Entrega: R$ {printOrder.shippingPrice.toFixed(2)}</Box>
+            <Box>Subtotal: R$ {printOrder.subtotal.toFixed(2)}</Box>{printOrder.cupomDiscount && <Box>Desconto: -R$ {printOrder.cupomDiscount.toFixed(2)}</Box>}
+            <Box>Total: R$ {printOrder.total.toFixed(2)}</Box>
+            
+            <Typography component="h5" variant="h5">Endereço</Typography>
+            <Box>Rua: {printOrder.shippingAddress.address}</Box>
+            <Box>Número: {printOrder.shippingAddress.number}</Box>
+            <Box>Complemento: {printOrder.shippingAddress.complement}</Box>
+            <Box>CEP: {printOrder.shippingAddress.cep}</Box>
+            <Box>Bairro: {printOrder.shippingAddress.neighborhood}</Box>
+            <Box>Cidade: {printOrder.shippingAddress.city}</Box>
+            <Box>Estado: {printOrder.shippingAddress.state}</Box>
+
+            <Typography component="h5" variant="h5">Itens</Typography>
+            {printOrder.products.map((item, index)=> (
+              <Box key={index}>
+                {item.qt}x {item.product.name}
+              </Box>
+            ))}
+          </>
+        }
       </Box>
     </>
   );
