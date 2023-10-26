@@ -97,9 +97,9 @@ export const api = {
 
   getCategories: async (): Promise<Category[]> => {
     const list: Category[] = [
-      { id: 99, name: 'Burgers' },
-      { id: 99, name: 'Bebidas' },
-      { id: 99, name: 'Doces' },
+      { id: 1, name: 'Burgers' },
+      { id: 2, name: 'Bebidas' },
+      { id: 3, name: 'Doces' },
     ];
     return new Promise(resolve => {
       setTimeout(() => {
@@ -107,6 +107,7 @@ export const api = {
       }, 200);
     });
   },
+
   getProducts: async (): Promise<Product[]> => {
     const list: Product[] = [
       { ...tmpProduct, id: 123 },
@@ -123,5 +124,26 @@ export const api = {
         resolve(list)
       }, 500);
     });
-  }
+  },
+  deleteProduct: async (id: number): Promise<boolean> => {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve(true)
+      }, 1000);
+    });
+  },  
+  createProduct: async (form: FormData) => {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve(true)
+      }, 1000);
+    });
+  },
+  updateProduct: async (form: FormData) => {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve(true)
+      }, 1000);
+    });
+  },
 }

@@ -5,18 +5,27 @@ import { Order } from "@/app/types/Order";
 import { OrderStatus } from "@/app/types/OrderStatus";
 import { Product } from "@/app/types/Product";
 import { OrderItem } from "@/components/OrderItem";
+import { ProductEditDialog } from "@/components/ProductEditDialog";
 import { ProductTableItem } from "@/components/ProductTableItem";
 import { ProductTableSkeleton } from "@/components/ProductTableSkeleton";
 import { api } from "@/libs/api";
 import { dateFormat } from "@/libs/dateFormat";
 import { Refresh, Search } from "@mui/icons-material";
-import { Box, Button, CircularProgress, Grid, InputAdornment, Skeleton, Table, TableBody, TableCell, TableHead, TableRow, TextField, Typography } from "@mui/material";
-import { useEffect, useState } from 'react';
+import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, InputAdornment, Skeleton, Table, TableBody, TableCell, TableHead, TableRow, TextField, Typography } from "@mui/material";
+import { FormEvent, useEffect, useState } from 'react';
 
 const Page = () => {
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<Product>();
+  const [loadingDelete, setLoadingDelete] = useState(false);
+
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [productToEdit, setProductToEdit] = useState<Product>();
+  const [loadingEditDialog, setLoadingEditDialog] = useState(false);
 
   useEffect(() => {
     getProducts();
@@ -29,15 +38,42 @@ const Page = () => {
     setLoading(false);
   }
 
-  const handleNewProduct = () => {
-    
-  }
-
-  const handleEditProduct = (product: Product) => {
-  
-  }
+  // DELETE PRODUCT
   const handleDeleteProduct = (product: Product) => {
-  
+    setProductToDelete(product);
+    setShowDeleteDialog(true);
+  } 
+  const handleConfirmDelete = async () => {
+    if(productToDelete) {
+      setLoadingDelete(true);
+      await api.deleteProduct(productToDelete.id);
+      setLoadingDelete(false);
+      setShowDeleteDialog(false);
+      getProducts();      
+    }
+  }
+  // New/Edit Product
+  const handleNewProduct = () => {
+    setProductToEdit(undefined);
+    setEditDialogOpen(true);
+  }
+  const handleEditProduct = (product: Product) => {
+    setProductToEdit(product);
+    setEditDialogOpen(true);
+  }
+  const handleSaveEditDialog = async (event: FormEvent<HTMLFormElement>) => {
+    let form = new FormData(event.currentTarget);
+    //console.log(form);
+    setLoadingEditDialog(true);
+    if(productToEdit) {
+      form.append('id', productToEdit.id.toString());
+      await api.updateProduct(form);
+    } else {
+      await api.createProduct(form);
+    }
+    setLoadingEditDialog(false);
+    setEditDialogOpen(false);
+    getProducts();
   }
 
   return (
@@ -80,6 +116,27 @@ const Page = () => {
           </TableBody>
         </Table>
 
+        <Dialog open={showDeleteDialog} onClose={() => !loadingDelete ? setShowDeleteDialog(false) : null}>
+          <DialogTitle>Tem certeza que deseja deletar este produto?</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Esta ação não poderá ser revertida!
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+              <Button disabled={loadingDelete}  onClick={() => setShowDeleteDialog(false)}>Não</Button>
+              <Button disabled={loadingDelete} onClick={handleConfirmDelete}>Sim</Button>
+          </DialogActions>   
+        </Dialog>
+
+        <ProductEditDialog 
+          open={editDialogOpen}
+          onClose={() => setEditDialogOpen(false)}
+          onSave={handleSaveEditDialog}
+          disabled={loadingEditDialog}
+          product={productToEdit}
+          categories={categories}
+        />
       </Box>
 
     </>
